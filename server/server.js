@@ -1,15 +1,27 @@
 const path = require('path');
+const http = require('http');
 const express = require('express');
+const socketIO = require('socket.io');
 
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
 const app = express();
+const server = http.createServer(app);
+const io = socketIO(server); // web sockets server
 
 app.use(express.static(publicPath));
-// app.get('/', (req, res) => {
-//     res.sendfile(path.join(publicPath, '/index.html'));
-// });
 
-app.listen(port, () => {
+// individual socket connection built in events = socket
+io.on('connection', (socket) => {
+    console.log('New user connected');
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
+    });
+});
+
+
+
+
+server.listen(port, () => {
     console.log(`Started on port ${port}`);
 });

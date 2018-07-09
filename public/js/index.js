@@ -5,10 +5,10 @@ socket.on('connect', function () {
     //     to: 'jen@example.com',
     //     text: 'hey, its jen'
     // });
-    socket.emit('createMessage', {
-        from: 'Andy',
-        text: 'yes, works'
-    });
+    // socket.emit('createMessage', {
+    //     from: 'Andy',
+    //     text: 'yes, works'
+    // });
 });
 
 socket.on('disconnect', function () {

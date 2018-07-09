@@ -17,13 +17,12 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('User disconnected');
     });
-    socket.emit('newMessage', {
-        from: 'mike',
-        text: 'some chat text',
-        createdAt: 32431
-    });
     socket.on('createMessage', (message) => {
         console.log('createMessage', message);
+        io.emit('newMessage', {
+            from: message.from,
+            text: message.text,
+        }); // io emit emits to all connections
     });
 });
 

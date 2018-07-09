@@ -17,6 +17,14 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('User disconnected');
     });
+    socket.emit('newMessage', {
+        from: 'mike',
+        text: 'some chat text',
+        createdAt: 32431
+    });
+    socket.on('createMessage', (message) => {
+        console.log('createMessage', message);
+    });
 });
 
 

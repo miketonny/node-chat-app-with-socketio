@@ -15,15 +15,15 @@ function scrollToBottom () {
 }
 
 socket.on('connect', function () {
-    console.log('Connected to server');
-    // socket.emit('createEmail', {
-    //     to: 'jen@example.com',
-    //     text: 'hey, its jen'
-    // });
-    // socket.emit('createMessage', {
-    //     from: 'Andy',
-    //     text: 'yes, works'
-    // });
+    var params = $.deparam(window.location.search);
+    socket.emit('join', params, function (err) {
+        if (err) {
+            alert(err);
+            window.location.href = '/';
+        } else{
+            console.log('no error');
+        }
+    });
 });
 
 socket.on('disconnect', function () {

@@ -9,6 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server); // web sockets server
 const { generateMessage, generateLocationMessage } = require('./utils/message');
+const { isRealString } = require('./utils/validation');
 
 app.use(express.static(publicPath));
 
@@ -23,6 +24,13 @@ io.on('connection', (socket) => {
 
     // broadcast will emit message to all but the one send this
     socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'));
+
+    socket.on('join', (params, callback) => {
+        if (!isRealString(params.name) || !isRealString(params.room)){
+            callback('Name and room name are required');
+        }
+        callback();
+    });
 
     socket.on('createMessage', (message, callback) => {
         console.log('createMessage', message);

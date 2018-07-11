@@ -3,6 +3,7 @@ const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
 const { Users } = require('./utils/users');
+const { Rooms } = require('./utils/rooms');
 
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
@@ -10,6 +11,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server); // web sockets server
 const users = new Users();
+const rooms = new Rooms();
 const { generateMessage, generateLocationMessage } = require('./utils/message');
 const { isRealString } = require('./utils/validation');
 
@@ -17,7 +19,9 @@ app.use(express.static(publicPath));
 
 // individual socket connection built in events = socket
 io.on('connection', (socket) => {
-    console.log('New user connected');
+    // console.log('New user connected');
+    io.emit('updateRoomList', rooms.rooms); // broadcast to all channel on connection
+
     socket.on('disconnect', () => {
         const user = users.removeUser(socket.id);
         if (user) {
@@ -30,7 +34,16 @@ io.on('connection', (socket) => {
         if (!isRealString(params.name) || !isRealString(params.room)) {
             return callback('Name and room name are required');
         }
+        // check if user name already exists in current name
+        const existingUser = users.users.find(u => u.name === params.name
+            && u.room === params.room);
+        if (existingUser) return callback('Name already taken');
         socket.join(params.room); // joins ppl into the same group to get msg
+        const existingRoom = rooms.rooms.find(r => r === params.room);
+        if (!existingRoom) {
+            rooms.addRoom(params.room); // add new room to list if its not in list
+            io.emit('updateRoomList', rooms.rooms); // broadcast to all receipients
+        }
         users.addUser(socket.id, params.name, params.room);
         io.to(params.room).emit('updateUserList', users.getUserList(params.room));
         socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app')); // shows msg to this user
